@@ -1,7 +1,5 @@
 ''''''
 
-import datetime
-
 from NMEA0183 import Sentence
 
 

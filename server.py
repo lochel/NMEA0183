@@ -74,11 +74,12 @@ class Server:
     if gsv.index == 1:
       self._satellites_tmp = list()
 
-    self._satellites_tmp.append(gsv._satellites)
+    self._satellites_tmp.extend(gsv._satellites)
 
     if gsv.index == gsv.numberOfSentences:
       self._satellites = self._satellites_tmp
-      print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
+      #print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
+      NMEA0183.plot_gsv(self._satellites)
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(name)s] %(message)s')

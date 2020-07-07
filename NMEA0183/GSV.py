@@ -1,9 +1,9 @@
 ''''''
 
-import datetime
-
 from NMEA0183 import Sentence
 
+def int_or_none(value):
+  return int(value) if value else None
 
 class GSV:
   '''
@@ -61,7 +61,7 @@ class GSV:
     i = 0
     while len(data) >= 4 + (i+1)*4:
       if data[4 + i*4]:
-        self._satellites.append((data[4 + i*4 + 0], data[4 + i*4 + 1], data[4 + i*4 + 2], data[4 + i*4 + 3]))
+        self._satellites.append((int(data[4 + i*4 + 0]), int_or_none(data[4 + i*4 + 1]), int_or_none(data[4 + i*4 + 2]), int_or_none(data[4 + i*4 + 3])))
       i += 1
 
   def __repr__(self):
