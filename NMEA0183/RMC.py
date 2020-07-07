@@ -34,6 +34,8 @@ class RMC:
   well. Only the A and D values will correspond to an Active and reliable
   Sentence. This mode character has been added to the RMC, RMB, VTG, and GLL,
   sentences and optionally some others including the BWC and XTE sentences.
+
+  ref: https://www.gpsinformation.org/dale/nmea.htm#RMC
   '''
 
   def __init__(self, sentence: Sentence):
@@ -45,7 +47,7 @@ class RMC:
 
     if data[2] != b'A':
       raise Exception('Void', self._sentence)
-    if data[12] != b'A':
+    if data[12] not in (b'A', b'D'):
       raise Exception('Void', self._sentence)
 
     time = data[1]
