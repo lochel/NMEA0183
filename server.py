@@ -31,6 +31,8 @@ class Server:
     self._satellites = list()
     self._satellites_tmp = list()
 
+    self._time = None
+
   def connect(self, addr: str):
     self._socket.connect(addr)
     print('Collecting updates from %s...' % addr)
@@ -53,6 +55,7 @@ class Server:
 
   def RMC(self, sen: NMEA0183.Sentence):
     rmc = NMEA0183.RMC(sen)
+    self._time = rmc.time
     print('RMC: Time %s, Lon %s, Lat %s, Speed %s, Heading %s' % (rmc.time, rmc.longitude, rmc.latitude, rmc.speed, rmc.heading))
 
   def GSA(self, sen: NMEA0183.Sentence):
@@ -79,7 +82,7 @@ class Server:
     if gsv.index == gsv.numberOfSentences:
       self._satellites = self._satellites_tmp
       #print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
-      NMEA0183.plot_gsv(self._satellites)
+      NMEA0183.plot_gsv(self._satellites, self._time)
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(name)s] %(message)s')
