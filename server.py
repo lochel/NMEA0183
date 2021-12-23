@@ -35,6 +35,12 @@ class Server:
     self._socket.connect(addr)
     print('Collecting updates from %s...' % addr)
 
+  def subscribe(self, topic: str):
+    topic = '$' + topic
+    self._socket.setsockopt(zmq.UNSUBSCRIBE, b'')
+    self._socket.setsockopt(zmq.SUBSCRIBE, topic.encode('ascii'))
+    print('Subscribing to "{}"'.format(topic))
+
   def run(self):
     while True:
       msg = self._socket.recv()
@@ -82,14 +88,21 @@ class Server:
       print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
       #NMEA0183.plot_gsv(self._satellites, self._time)
 
-if __name__ == '__main__':
+def _main():
   logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(name)s] %(message)s')
 
-  PARSER = argparse.ArgumentParser(description='NMEA0183 server', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  PARSER.add_argument('--connect', type=str, action='append')
-  ARGS = PARSER.parse_args()
+  parser = argparse.ArgumentParser(description='NMEA0183 server', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  parser.add_argument('--connect', type=str, action='append')
+  parser.add_argument('--topic', type=str, action='append')
+  args = parser.parse_args()
 
-  SERVER = Server()
-  for addr in ARGS.connect:
-    SERVER.connect(addr)
-  SERVER.run()
+  server = Server()
+  for addr in args.connect:
+    server.connect(addr)
+  if args.topic:
+    for topic in args.topic:
+      server.subscribe(topic)
+  server.run()
+
+if __name__ == '__main__':
+  _main()

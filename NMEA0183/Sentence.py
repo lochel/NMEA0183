@@ -23,10 +23,10 @@ class Sentence:
     self._topic = self._raw[3:6]
 
   def __repr__(self):
-    return '%s: %s' % (type(self), self._raw[:-2].decode())
+    return '%s: %s' % (type(self), self._raw[:-2].decode('utf-8'))
 
   def __str__(self):
-    return self._raw[:-2].decode()
+    return self._raw[:-2].decode('utf-8')
 
   @property
   def raw(self):
