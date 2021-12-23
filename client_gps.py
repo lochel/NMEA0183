@@ -14,7 +14,7 @@ def main(port: int, status: bool):
   socket = context.socket(zmq.PUB)
   socket.bind('tcp://*:%s' % port)
 
-  with serial.Serial('/dev/serial0', baudrate=4800, parity=PARITY_NONE, bytesize=EIGHTBITS, stopbits=STOPBITS_ONE) as ser:
+  with serial.Serial('/dev/serial0', baudrate=9600, parity=PARITY_NONE, bytesize=EIGHTBITS, stopbits=STOPBITS_ONE) as ser:
     ser.readline() # trash first line
 
     while True:
