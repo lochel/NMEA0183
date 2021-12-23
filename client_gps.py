@@ -5,6 +5,7 @@ import logging
 
 import serial
 import zmq
+from serial.serialutil import EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 
 
 def main(port: int, status: bool):
@@ -13,15 +14,15 @@ def main(port: int, status: bool):
   socket = context.socket(zmq.PUB)
   socket.bind('tcp://*:%s' % port)
 
-  with serial.Serial('/dev/serial0', 9600, timeout=5) as ser:
+  with serial.Serial('/dev/serial0', baudrate=4800, parity=PARITY_NONE, bytesize=EIGHTBITS, stopbits=STOPBITS_ONE) as ser:
     ser.readline() # trash first line
 
     while True:
-      message = ser.readline()
-      socket.send(message)
+      sentence = ser.readline()
+      socket.send(sentence)
 
       if status:
-        logging.info(message[:-2].decode('utf-8'))
+        logging.info(sentence[:-2].decode('utf-8'))
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s [%(name)s] %(message)s')

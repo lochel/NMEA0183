@@ -2,9 +2,7 @@
 ''''''
 
 import argparse
-import datetime
 import logging
-import sys
 
 import zmq
 
@@ -81,13 +79,13 @@ class Server:
 
     if gsv.index == gsv.numberOfSentences:
       self._satellites = self._satellites_tmp
-      #print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
-      NMEA0183.plot_gsv(self._satellites, self._time)
+      print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
+      #NMEA0183.plot_gsv(self._satellites, self._time)
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(name)s] %(message)s')
 
-  PARSER = argparse.ArgumentParser(description='This runs the NMEA0183 server', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  PARSER = argparse.ArgumentParser(description='NMEA0183 server', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   PARSER.add_argument('--connect', type=str, action='append')
   ARGS = PARSER.parse_args()
 
