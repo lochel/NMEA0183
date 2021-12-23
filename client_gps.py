@@ -21,12 +21,12 @@ def main(port: int, status: bool):
       socket.send(message)
 
       if status:
-        print(message)
+        logging.info(message[:-2].decode('utf-8'))
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s [%(name)s] %(message)s')
 
-  PARSER = argparse.ArgumentParser(description='This runs the NMEA0183 GPS client', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  PARSER = argparse.ArgumentParser(description='NMEA0183 GPS client', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   PARSER.add_argument('--port', type=int, default=5556, help='port')
   PARSER.add_argument('--status', type=bool, default=False, help='Show status information')
   ARGS = PARSER.parse_args()
