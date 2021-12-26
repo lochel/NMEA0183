@@ -8,6 +8,48 @@ import zmq
 
 import NMEA0183
 
+# Talker ID's
+
+talker_id = { b'AG': '(General) Heading Track Controller (Autopilot)',
+              b'AI': 'Automatic Identification System',
+              b'AP': 'Magnetic Heading Track Controller (Autopilot)',
+              b'CD': 'Digital Selective Calling (DSC)',
+              b'CR': 'Data Receiver',
+              b'CS': 'Satellite',
+              b'CT': 'Radio-Telephone (MF/HF)',
+              b'CV': 'Radio-Telephone (VHF)',
+              b'CX': 'Scanning Receiver',
+              b'DE': 'DECCA Navigator',
+              b'DF': 'Direction Finder',
+              b'EC': 'Electronic Chart System (ECS)',
+              b'EI': 'Electronic Chart Display & Information System (ECDIS)',
+              b'EP': 'Emergency Position Indicating Beacon (EPIRB)',
+              b'ER': 'Engine room Monitoring Systems',
+              b'GL': 'GLONASS Receiver',
+              b'GN': 'Global Navigation Satellite System (GNSS)',
+              b'GP': 'Global Positioning System (GPS)',
+              b'HC': 'HEADING SENSORS: Compass, Magnetic',
+              b'HE': 'Gyro, North Seeking',
+              b'HN': 'Gyro, Non-North Seeking',
+              b'II': 'Integrated Instrumentation',
+              b'IN': 'Integrated Navigation',
+              b'LC': 'Loran C',
+              b'RA': 'Radar and/or Radar Plotting',
+              b'SD': 'Sounder, depth',
+              b'SN': 'Electronic Positioning System, other/general',
+              b'SS': 'Sounder, scanning',
+              b'TI': 'Turn Rate Indicator',
+              b'VD': 'VELOCITY SENSORS: Doppler, other/general',
+              b'VM': 'Speed Log, Water, Magnetic',
+              b'VR': 'Voyage Data Recorder',
+              b'VW': 'Speed Log, Water, Mechanical',
+              b'WI': 'Weather Instruments',
+              b'YX': 'Transducer',
+              b'ZA': 'TIMEKEEPERS, TIME/DATE: Atomic Clock',
+              b'ZC': 'Chronometer',
+              b'ZQ': 'Quartz',
+              b'ZV': 'Radio Update'}
+
 
 class Server:
   def __init__(self):
@@ -24,7 +66,8 @@ class Server:
       b'GSA': self.GSA,
       b'VTG': self.VTG,
       b'GGA': self.GGA,
-      b'GSV': self.GSV}
+      b'GSV': self.GSV,
+      b'XDR': self.XDR}
 
     self._satellites = list()
     self._satellites_tmp = list()
@@ -48,7 +91,7 @@ class Server:
 
       if sen.talker not in self._talkers:
         self._talkers.add(sen.talker)
-        self._logger.info('New talker: %s', sen.talker)
+        self._logger.info('New talker: %s: %s', sen.talker, talker_id[sen.talker])
         print(self._talkers)
 
       if sen.topic in self._supported:
@@ -60,12 +103,11 @@ class Server:
   def RMC(self, sen: NMEA0183.Sentence):
     rmc = NMEA0183.RMC(sen)
     self._time = rmc.time
-    #print('RMC: Time %s, Lon %s, Lat %s, Speed %s, Heading %s' % (rmc.time, rmc.longitude, rmc.latitude, rmc.speed, rmc.heading))
+    print('RMC: Time %s, Lon %s, Lat %s, Speed %s, Heading %s' % (rmc.time, rmc.longitude, rmc.latitude, rmc.speed, rmc.heading))
 
   def GSA(self, sen: NMEA0183.Sentence):
     gsa = NMEA0183.GSA(sen)
-    #print(gsa)
-    #print('GSA: dop %s, hdop %s, vdop %s' % (gsa.dop, gsa.hdop, gsa.vdop))
+    print('GSA: dop %s, hdop %s, vdop %s' % (gsa.dop, gsa.hdop, gsa.vdop))
 
   def VTG(self, sen: NMEA0183.Sentence):
     #print(sen)
@@ -85,8 +127,12 @@ class Server:
 
     if gsv.index == gsv.numberOfSentences:
       self._satellites = self._satellites_tmp
-      #print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
+      print('GSV: %d satellites: %s' % (gsv.numberOfSatellites, self._satellites))
       #NMEA0183.plot_gsv(self._satellites, self._time)
+
+  def XDR(self, sen: NMEA0183.Sentence):
+    #print(sen)
+    pass
 
 def _main():
   logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(name)s] %(message)s')

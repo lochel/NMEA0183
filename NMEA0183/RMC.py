@@ -41,36 +41,35 @@ class RMC:
   def __init__(self, sentence: Sentence):
     self._sentence = sentence
 
-    data = self._sentence.msg.split(b',')
     if self._sentence.topic != b'RMC':
       raise Exception('Wrong sentence, expected **RMC', self._sentence)
 
-    if data[2] != b'A':
+    if sentence.fields[1] != b'A':
       raise Exception('Void', self._sentence)
-    if data[12] not in (b'A', b'D'):
+    if sentence.fields[11] not in (b'A', b'D'):
       raise Exception('Void', self._sentence)
 
-    time = data[1]
+    time = sentence.fields[0]
     hour = int(time[0:2])
     min = int(time[2:4])
     sec = int(time[4:6])
 
-    dd = int(data[9][0:2])
-    mm = int(data[9][2:4])
-    yy = 2000 + int(data[9][4:6])
+    dd = int(sentence.fields[8][0:2])
+    mm = int(sentence.fields[8][2:4])
+    yy = 2000 + int(sentence.fields[8][4:6])
 
     self._time = datetime.datetime(yy, mm, dd, hour, min, sec)
 
-    self._latitude = float(data[3][0:2]) + float(data[3][2:])/60.0
-    if data[4] == b'S':
+    self._latitude = float(sentence.fields[2][0:2]) + float(sentence.fields[2][2:])/60.0
+    if sentence.fields[3] == b'S':
       self._latitude *= -1.0
 
-    self._longitude = float(data[5][0:3]) + float(data[5][3:])/60.0
-    if data[6] == b'W':
+    self._longitude = float(sentence.fields[4][0:3]) + float(sentence.fields[4][3:])/60.0
+    if sentence.fields[5] == b'W':
       self._longitude *= -1.0
 
-    self._speed = float(data[7])
-    self._heading = float(data[8])
+    self._speed = float(sentence.fields[6])
+    self._heading = float(sentence.fields[7])
 
   def __repr__(self):
     return '%s: %s' % (type(self), self._sentence)

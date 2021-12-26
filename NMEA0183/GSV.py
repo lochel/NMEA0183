@@ -49,19 +49,18 @@ class GSV:
   def __init__(self, sentence: Sentence):
     self._sentence = sentence
 
-    data = self._sentence.msg.split(b',')
     if self._sentence.topic != b'GSV':
       raise Exception('Wrong sentence, expected **GSV', self._sentence)
 
-    self._numberOfSentences = int(data[1])
-    self._index = int(data[2])
-    self._numberOfSatellites = int(data[3])
+    self._numberOfSentences = int(sentence.fields[0])
+    self._index = int(sentence.fields[1])
+    self._numberOfSatellites = int(sentence.fields[2])
 
     self._satellites = list()
     i = 0
-    while len(data) >= 4 + (i+1)*4:
-      if data[4 + i*4]:
-        self._satellites.append((int(data[4 + i*4 + 0]), int_or_none(data[4 + i*4 + 1]), int_or_none(data[4 + i*4 + 2]), int_or_none(data[4 + i*4 + 3])))
+    while len(sentence.fields) >= 3 + (i+1)*4:
+      if sentence.fields[3 + i*4]:
+        self._satellites.append((int(sentence.fields[3 + i*4 + 0]), int_or_none(sentence.fields[3 + i*4 + 1]), int_or_none(sentence.fields[3 + i*4 + 2]), int_or_none(sentence.fields[3 + i*4 + 3])))
       i += 1
 
   def __repr__(self):
