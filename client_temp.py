@@ -17,10 +17,10 @@ def main(port: int, status: bool):
 
   while True:
     sentence = NMEA0183.Sentence('II', 'XDR', ['C','19.52','C','TempAir'], None)
-    socket.send(sentence)
+    socket.send(sentence.raw)
 
     if status:
-      logging.info(sentence[:-2].decode('utf-8'))
+      logging.info(sentence)
 
     time.sleep(60)
 

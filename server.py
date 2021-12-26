@@ -55,17 +55,17 @@ class Server:
         self._supported[sen.topic](sen)
       elif sen.topic not in self._unsupported:
         self._unsupported.add(sen.topic)
-        self._logger.warning('Unsupported topic: %s', sen.topic.decode())
+        self._logger.warning('Unsupported topic: %s', sen.topic)
 
   def RMC(self, sen: NMEA0183.Sentence):
     rmc = NMEA0183.RMC(sen)
     self._time = rmc.time
-    print('RMC: Time %s, Lon %s, Lat %s, Speed %s, Heading %s' % (rmc.time, rmc.longitude, rmc.latitude, rmc.speed, rmc.heading))
+    #print('RMC: Time %s, Lon %s, Lat %s, Speed %s, Heading %s' % (rmc.time, rmc.longitude, rmc.latitude, rmc.speed, rmc.heading))
 
   def GSA(self, sen: NMEA0183.Sentence):
     gsa = NMEA0183.GSA(sen)
     #print(gsa)
-    print('GSA: dop %s, hdop %s, vdop %s' % (gsa.dop, gsa.hdop, gsa.vdop))
+    #print('GSA: dop %s, hdop %s, vdop %s' % (gsa.dop, gsa.hdop, gsa.vdop))
 
   def VTG(self, sen: NMEA0183.Sentence):
     #print(sen)
@@ -85,7 +85,7 @@ class Server:
 
     if gsv.index == gsv.numberOfSentences:
       self._satellites = self._satellites_tmp
-      print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
+      #print('GSV: %d %s' % (gsv.numberOfSatellites, self._satellites))
       #NMEA0183.plot_gsv(self._satellites, self._time)
 
 def _main():
