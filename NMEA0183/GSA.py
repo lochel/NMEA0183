@@ -44,13 +44,12 @@ class GSA:
   def __init__(self, sentence: Sentence):
     self._sentence = sentence
 
-    data = self._sentence.msg.split(b',')
     if self._sentence.topic != b'GSA':
       raise Exception('Wrong sentence, expected **GSA', self._sentence)
 
-    self._dop = float(data[15])
-    self._hdop = float(data[16])
-    self._vdop = float(data[17])
+    self._dop = float(sentence.fields[14])
+    self._hdop = float(sentence.fields[15])
+    self._vdop = float(sentence.fields[16])
 
   def __repr__(self):
     return '%s: %s' % (type(self), self._sentence)
@@ -59,13 +58,16 @@ class GSA:
     return '%s' % self._sentence
 
   @property
-  def dop(self):
+  def dop(self) -> float:
+    '''P-DOP (dilution of precision)'''
     return self._dop
 
   @property
-  def hdop(self):
+  def hdop(self) -> float:
+    '''Horizontal dilution of precision (H-DOP)'''
     return self._hdop
 
   @property
-  def vdop(self):
+  def vdop(self) -> float:
+    '''Vertical dilution of precision (V-DOP)'''
     return self._vdop

@@ -43,12 +43,12 @@ class Server:
 
   def run(self):
     while True:
-      msg = self._socket.recv()
-      sen = NMEA0183.Sentence(msg)
+      raw = self._socket.recv()
+      sen = NMEA0183.bytes_to_sentence(raw)
 
       if sen.talker not in self._talkers:
         self._talkers.add(sen.talker)
-        self._logger.info('New talker: %s', sen.talker.decode())
+        self._logger.info('New talker: %s', sen.talker)
         print(self._talkers)
 
       if sen.topic in self._supported:
@@ -92,7 +92,7 @@ def _main():
   logging.basicConfig(level=logging.INFO, format='%(levelname)s [%(name)s] %(message)s')
 
   parser = argparse.ArgumentParser(description='NMEA0183 server', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('--connect', type=str, action='append')
+  parser.add_argument('--connect', type=str, action='append', required=True)
   parser.add_argument('--topic', type=str, action='append')
   args = parser.parse_args()
 
