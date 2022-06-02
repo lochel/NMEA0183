@@ -72,13 +72,17 @@ class NMEA_GPS:
     self.gpx = None
 
   def upload_position(self):
-    r = requests.get(f'https://sailingjackpot.ddns.net/nmea/gps?date={self._time}&lat={self._latitude}&lon={self._longitude}')
-    logging.info(f'request status: {r.status_code}')
+    r = requests.get(f'https://sailingjackpot.ddns.net/nmea/gps?date={self._time}&lat={self._latitude}&lon={self._longitude}&sog={self._speed}&cog={self._heading}')
+    logging.info(f'request status (gps): {r.status_code}')
 
   def new_file(self):
     if self.gpx:
+      data = self.gpx.to_xml()
       with open(self.filename, 'w') as f:
-        f.write(self.gpx.to_xml())
+        f.write(data)
+
+      r = requests.post('https://sailingjackpot.ddns.net/nmea/gpx', data=data, headers={'Content-Type': 'application/xml'})
+      logging.info(f'request status (gpx): {r.status_code}')
 
     self.filename = f'{self._time}.gpx'
     logging.info(f'New file started to record: {self.filename}')
