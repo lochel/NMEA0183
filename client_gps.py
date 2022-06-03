@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import shutil
 import sys
 import traceback
 from logging.handlers import RotatingFileHandler
@@ -71,18 +72,45 @@ class NMEA_GPS:
 
     self.gpx = None
 
+    if not os.path.exists('pending'):
+      os.makedirs('pending')
+
+    if not os.path.exists('uploaded'):
+      os.makedirs('uploaded')
+
   def upload_position(self):
-    r = requests.get(f'https://sailingjackpot.ddns.net/nmea/gps?date={self._time}&lat={self._latitude}&lon={self._longitude}&sog={self._speed}&cog={self._heading}')
-    logging.info(f'request status (gps): {r.status_code}')
+    try:
+      r = requests.get(f'https://sailingjackpot.ddns.net/nmea/gps?date={self._time}&lat={self._latitude}&lon={self._longitude}&sog={self._speed}&cog={self._heading}')
+      logging.info(f'{r.status_code}: {r.url}')
+    except Exception:
+      logging.info(f'Something went wrong; we\'ll try later again')
+      logging.error(traceback.format_exc())
+
+  def upload_pending(self):
+    files = sorted([os.path.join('pending', f) for f in os.listdir('pending') if os.path.isfile(os.path.join('pending', f))])
+    logging.info(f'files: {files}')
+
+    try:
+      for file in files:
+        with open(file) as f:
+          data = f.read()
+
+        r = requests.post('https://sailingjackpot.ddns.net/nmea/gpx', data=data, headers={'Content-Type': 'application/xml'})
+        logging.info(f'{r.status_code}: {r.url}')
+
+        if r.status_code == 200:
+          #os.remove(file)
+          shutil.move(file, 'uploaded')
+    except Exception:
+      logging.info(f'Something went wrong; we\'ll try later again')
+      logging.error(traceback.format_exc())
 
   def new_file(self):
     if self.gpx:
       data = self.gpx.to_xml()
-      with open(self.filename, 'w') as f:
+      with open(os.path.join('pending', self.filename), 'w') as f:
         f.write(data)
-
-      r = requests.post('https://sailingjackpot.ddns.net/nmea/gpx', data=data, headers={'Content-Type': 'application/xml'})
-      logging.info(f'request status (gpx): {r.status_code}')
+      self.upload_pending()
 
     self.filename = f'{self._time}.gpx'
     logging.info(f'New file started to record: {self.filename}')
@@ -103,7 +131,7 @@ class NMEA_GPS:
       self.upload_position()
 
     self.gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(self._latitude, self._longitude, elevation=self._altitude, time=self._time))
-    if len(self.gpx_segment.points) >= 60*15:
+    if len(self.gpx_segment.points) >= 60*10:
       self.new_file()
       self.upload_position()
 
@@ -133,6 +161,13 @@ class NMEA_GPS:
               self._latitude = rmc.latitude
               self._longitude = rmc.longitude
               self.update()
+          elif sentence.topic == b'GGA':
+            try:
+              gga = NMEA0183.GGA(sentence)
+            except Exception:
+              logging.error(traceback.format_exc())
+            else:
+              self._altitude = gga.altitude
 
 if __name__ == '__main__':
   PARSER = argparse.ArgumentParser(description='NMEA0183 GPS client', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
