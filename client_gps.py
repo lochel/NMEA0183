@@ -88,7 +88,6 @@ class NMEA_GPS:
 
   def upload_pending(self):
     files = sorted([os.path.join('pending', f) for f in os.listdir('pending') if os.path.isfile(os.path.join('pending', f))])
-    logging.info(f'files: {files}')
 
     try:
       for file in files:
@@ -96,7 +95,7 @@ class NMEA_GPS:
           data = f.read()
 
         r = requests.post('https://sailingjackpot.ddns.net/nmea/gpx', data=data, headers={'Content-Type': 'application/xml'})
-        logging.info(f'{r.status_code}: {r.url}')
+        logging.info(f'{r.status_code}: {file}')
 
         if r.status_code == 200:
           #os.remove(file)
@@ -113,7 +112,6 @@ class NMEA_GPS:
       self.upload_pending()
 
     self.filename = f'{self._time}.gpx'
-    logging.info(f'New file started to record: {self.filename}')
 
     self.gpx = gpxpy.gpx.GPX()
 

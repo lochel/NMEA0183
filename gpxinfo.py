@@ -5,17 +5,14 @@ Command line utility to extract basic statistics from gpx file(s)
 source: https://github.com/tkrajina/gpxpy/blob/dev/gpxinfo
 """
 
-import pdb
-
-import sys as mod_sys
-import logging as mod_logging
-import math as mod_math
 import argparse as mod_argparse
+import logging as mod_logging
+import sys as mod_sys
+from typing import *
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
 
-from typing import *
 
 KM_TO_MILES = 0.621371
 M_TO_FEET = 3.28084

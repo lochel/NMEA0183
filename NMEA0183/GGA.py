@@ -93,6 +93,9 @@ class GGA:
     if self._sentence.topic != b'GGA':
       raise Exception('Wrong sentence, expected **GGA', self._sentence)
 
+    if sentence.fields[5] == '0': # Invalid, no position available
+      raise Exception('Void', self._sentence)
+
     self._alt = float(sentence.fields[8])
 
   def __repr__(self):
