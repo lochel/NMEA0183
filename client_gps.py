@@ -133,7 +133,7 @@ class NMEA_GPS:
       self.upload()
 
     self.gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(self._latitude, self._longitude, elevation=self._altitude, time=self._time))
-    if len(self.gpx_segment.points) >= 60*15:
+    if len(self.gpx_segment.points) >= 60*10:
       self.new_file()
       self.upload()
 
