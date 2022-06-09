@@ -86,7 +86,9 @@ class NMEA_GPS:
       logging.info(f'Something went wrong; we\'ll try later again')
       logging.error(traceback.format_exc())
 
-  def upload_pending(self):
+  def upload(self):
+    self.upload_position()
+
     files = sorted([os.path.join('pending', f) for f in os.listdir('pending') if os.path.isfile(os.path.join('pending', f))])
 
     try:
@@ -109,7 +111,6 @@ class NMEA_GPS:
       data = self.gpx.to_xml()
       with open(os.path.join('pending', self.filename), 'w') as f:
         f.write(data)
-      self.upload_pending()
 
     self.filename = f'{self._time}.gpx'
 
@@ -124,14 +125,17 @@ class NMEA_GPS:
     self.gpx_track.segments.append(self.gpx_segment)
 
   def update(self):
+    if not self._altitude:
+      return
+
     if not self.gpx:
       self.new_file()
-      self.upload_position()
+      self.upload()
 
     self.gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(self._latitude, self._longitude, elevation=self._altitude, time=self._time))
-    if len(self.gpx_segment.points) >= 60*10:
+    if len(self.gpx_segment.points) >= 60*15:
       self.new_file()
-      self.upload_position()
+      self.upload()
 
   def main(self):
     with serial.Serial('/dev/serial0', baudrate=9600, parity=PARITY_NONE, bytesize=EIGHTBITS, stopbits=STOPBITS_ONE) as ser:
@@ -169,10 +173,10 @@ class NMEA_GPS:
 
 if __name__ == '__main__':
   PARSER = argparse.ArgumentParser(description='NMEA0183 GPS client', allow_abbrev=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  PARSER.add_argument('--status', type=bool, default=False, help='Show status information')
+  PARSER.add_argument('--stdout', action='store_true', help='enables logging to stdout')
   ARGS = PARSER.parse_args()
 
-  configure(ARGS.status, rotating=True)
+  configure(ARGS.stdout, rotating=True)
 
   gps_client = NMEA_GPS()
   try:
